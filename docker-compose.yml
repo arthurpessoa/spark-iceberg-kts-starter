@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+    spark-master:
+        image: bitnami/spark:3.5.1
+        container_name: spark-master
+        environment:
+            - SPARK_MODE=master
+            - SPARK_RPC_AUTHENTICATION_ENABLED=no
+            - SPARK_RPC_ENCRYPTION_ENABLED=no
+            - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+            - SPARK_SSL_ENABLED=no
+        ports:
+            - "7077:7077"   # Spark master port
+            - "8080:8080"   # Spark master web UI
+        networks:
+            - spark-net
+
+    spark-worker:
+        image: bitnami/spark:3.5.1
+        container_name: spark-worker
+        environment:
+            - SPARK_MODE=worker
+            - SPARK_MASTER_URL=spark://spark-master:7077
+            - SPARK_WORKER_MEMORY=2G
+            - SPARK_WORKER_CORES=2
+        depends_on:
+            - spark-master
+        ports:
+            - "8081:8081"   # Spark worker web UI
+        networks:
+            - spark-net
+
+    spark-submit:
+        image: bitnami/spark:3.5.1
+        container_name: spark-submit
+        entrypoint: [ "/bin/bash", "-c", "tail -f /dev/null" ]
+        depends_on:
+            - spark-master
+            - spark-worker
+        volumes:
+            - ./build/libs:/opt/spark-apps
+            - ./src/main/resources:/opt/spark-resources
+        networks:
+            - spark-net
+        tty: true
+
+networks:
+    spark-net:
+        driver: bridge
