@@ -24,9 +24,11 @@ dependencies {
     implementation(libs.spark.sql.kafka)
     implementation(libs.kafka.clients)
     implementation(libs.iceberg.spark.runtime)
-    testImplementation(libs.kotlin.test.junit5)
     testRuntimeOnly(libs.junit.platform.launcher)
-    testImplementation("io.github.embeddedkafka:embedded-kafka_2.12:3.5.1")
+    testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.embedded.kafka)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.awaitility.kotlin)
 }
 
 kotlin {

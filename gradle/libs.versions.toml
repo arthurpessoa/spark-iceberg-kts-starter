@@ -1,11 +1,13 @@
 [versions]
 kotlin = "1.9.25"
-junit-jupiter = "5.10.2"
 junit-platform-launcher = "1.10.2"
 spark = "3.5.1"
 iceberg = "1.5.0"
 ktlint = "12.1.1"
 kafka = "3.5.1"
+embedded-kafka = "3.9.0"
+kotlinx-coroutines = "1.8.1"
+awaitility-kotlin = "4.2.0"
 
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -16,6 +18,9 @@ spark-sql = { module = "org.apache.spark:spark-sql_2.12", version.ref = "spark" 
 spark-sql-kafka = { module = "org.apache.spark:spark-sql-kafka-0-10_2.12", version.ref = "spark" }
 kafka-clients = { module = "org.apache.spark:spark-sql-kafka-0-10_2.12", version.ref = "kafka" }
 iceberg-spark-runtime = { module = "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12", version.ref = "iceberg" }
+embedded-kafka = { module = "io.github.embeddedkafka:embedded-kafka_2.12", version.ref = "embedded-kafka" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+awaitility-kotlin = { module = "org.awaitility:awaitility-kotlin", version.ref = "awaitility-kotlin" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

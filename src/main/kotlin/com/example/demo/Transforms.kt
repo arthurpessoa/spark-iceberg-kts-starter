@@ -24,3 +24,16 @@ fun writeTable(
     dataset: Dataset<Row>,
     table: String,
 ): Unit = dataset.write().format("iceberg").mode("overwrite").saveAsTable(table)
+
+fun readKafkaStream(
+    spark: SparkSession,
+    bootstrapServers: String,
+    topic: String,
+): Dataset<Row> {
+    return spark.readStream()
+        .format("kafka")
+        .option("kafka.bootstrap.servers", bootstrapServers)
+        .option("subscribe", topic)
+        .option("startingOffsets", "earliest")
+        .load()
+}
