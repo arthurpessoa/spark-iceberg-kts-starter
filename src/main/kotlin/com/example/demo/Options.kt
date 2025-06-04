@@ -1,12 +1,12 @@
 package com.example.demo
 
-
 data class Options(
-    var topic: String = "",
-    var table: String = "",
-    var bootstrapServers: String = "",
-    val inputSchema: String = "",
-    val outputSchema: String = "",
+    val topic: String,
+    val table: String,
+    val bootstrapServers: String,
+    val inputSchema: String,
+    val outputSchema: String,
+    val checkpointLocation: String,
 )
 
 fun buildOptionsFromArgs(args: Array<String>): Options {
@@ -15,6 +15,7 @@ fun buildOptionsFromArgs(args: Array<String>): Options {
     val bootstrapServers = args.getParameter("--bootstrap-servers=")
     val inputSchema = args.getParameter("--input-schema=")
     val outputSchema = args.getParameter("--output-schema=")
+    val checkpointLocation = args.getParameter("--checkpoint-location=")
 
     return Options(
         topic = topic,
@@ -22,6 +23,7 @@ fun buildOptionsFromArgs(args: Array<String>): Options {
         bootstrapServers = bootstrapServers,
         inputSchema = inputSchema,
         outputSchema = outputSchema,
+        checkpointLocation = checkpointLocation,
     )
 }
 

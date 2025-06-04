@@ -12,11 +12,9 @@ fun pipeline(
         .writeStream()
         // If any write fails, throw an exception. Spark will not commit the offsets for that batch, and will retry.
         .foreachBatch { batch: Dataset<Row>, _: Long ->
-
             val renamedDataset = renameColumnsFromAliases(batch, spark.readFileAsString(options.outputSchema))
 
-            //writeToConsole(renamedDataset)
-
+            writeToConsole(renamedDataset)
             writeToIceberg(renamedDataset, options)
         }
         .start()

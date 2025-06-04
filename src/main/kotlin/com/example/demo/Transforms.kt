@@ -8,43 +8,37 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.avro.functions.from_avro
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.streaming.Trigger
-import java.util.concurrent.TimeUnit
 
 fun readKafkaStreamAvro(
     spark: SparkSession,
-    options: Options
-): Dataset<Row> = spark.readStream()
-    .format("kafka")
-    .option("kafka.bootstrap.servers", options.bootstrapServers)
-    .option("subscribe", options.topic)
-    .option("startingOffsets", "earliest")
-    .option("failOnDataLoss", "true")
-    .load()
-    .select(from_avro(col("value"), spark.readFileAsString(options.inputSchema)).alias("data"))
-    .select("data.*")
-
+    options: Options,
+): Dataset<Row> =
+    spark.readStream()
+        .format("kafka")
+        .option("kafka.bootstrap.servers", options.bootstrapServers)
+        .option("subscribe", options.topic)
+        .option("startingOffsets", "earliest")
+        .option("failOnDataLoss", "true")
+        .load()
+        .select(from_avro(col("value"), spark.readFileAsString(options.inputSchema)).alias("data"))
+        .select("data.*")
 
 fun writeToIceberg(
     dataset: Dataset<Row>,
-    options: Options
+    options: Options,
 ) {
     dataset.write()
         .format("iceberg")
         .mode("append")
         .saveAsTable(options.table)
-
 }
 
-fun writeToConsole(
-    dataset: Dataset<Row>
-) {
+fun writeToConsole(dataset: Dataset<Row>) {
     dataset.write()
         .format("console")
         .mode("append")
         .save()
 }
-
 
 fun SparkSession.readFileAsString(filePath: String): String =
     FileSystem.get(sparkContext().hadoopConfiguration())
@@ -52,8 +46,10 @@ fun SparkSession.readFileAsString(filePath: String): String =
         .bufferedReader()
         .use { it.readText() }
 
-
-fun renameColumnsFromAliases(df: Dataset<Row>, avroSchemaJson: String): Dataset<Row> {
+fun renameColumnsFromAliases(
+    df: Dataset<Row>,
+    avroSchemaJson: String,
+): Dataset<Row> {
     val schema = Schema.Parser().parse(avroSchemaJson)
     var renamedDf = df
     for (field in schema.fields) {
