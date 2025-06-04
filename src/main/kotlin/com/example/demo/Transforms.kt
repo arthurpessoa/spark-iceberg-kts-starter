@@ -29,16 +29,18 @@ fun writeTable(
     table: String,
 ): Unit = dataset.write().format("iceberg").mode("overwrite").saveAsTable(table)
 
-fun readKafkaStreamAvro(spark: SparkSession, bootstrapServers: String, topic: String, avroSchemaPath: String) =
-    spark.readStream()
-        .format("kafka")
-        .option("kafka.bootstrap.servers", bootstrapServers)
-        .option("subscribe", topic)
-        .option("startingOffsets", "earliest")
-        .load()
-        .let { df ->
-            val avroSchema = Files.readString(Paths.get(avroSchemaPath))
-            df.select(
-                from_avro(col("value"), avroSchema).alias("user")
-            )
-        }
+fun readKafkaStreamAvro(
+    spark: SparkSession,
+    options: Options
+): Dataset<Row> = spark.readStream()
+    .format("kafka")
+    .option("kafka.bootstrap.servers", options.bootstrapServers)
+    .option("subscribe", options.topic)
+    .option("startingOffsets", "earliest")
+    .load()
+    .let { df -> //TODO: Meh
+        val avroSchema = Files.readString(Paths.get(options.avroSchemaPath))
+        df.select(
+            from_avro(col("value"), avroSchema).alias("user"),
+        )
+    }
