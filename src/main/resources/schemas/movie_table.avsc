@@ -1,0 +1,29 @@
+{
+    "type": "record",
+    "name": "MovieTableRecord",
+    "namespace": "com.example.demo",
+    "fields": [
+        {
+            "name": "idt_movie",
+            "type": "string",
+            "aliases": [
+                "id"
+            ]
+        },
+        {
+            "name": "des_title",
+            "type": "string",
+            "aliases": [
+                "title"
+            ]
+        },
+        {
+            "name": "num_rating",
+            "type": "int",
+            "aliases": [
+                "rating"
+            ]
+        }
+    ]
+}
+

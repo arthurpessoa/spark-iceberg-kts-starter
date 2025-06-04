@@ -1,33 +1,15 @@
 package com.example.demo
 
+import org.apache.avro.Schema
+import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.avro.functions.from_avro
 import org.apache.spark.sql.functions.col
-import java.nio.file.Files
-import java.nio.file.Paths
-
-/** * Reads a CSV file into a Spark Dataset.
- *
- * @param spark The SparkSession to use for reading the file.
- * @param file The path to the CSV file.
- * @return A Dataset<Row> containing the data from the CSV file.
- */
-fun readFile(
-    spark: SparkSession,
-    file: String,
-): Dataset<Row> = spark.read().option("header", "true").schema(Schemas.tableSchema).csv(file)
-
-/** * Writes a Spark Dataset to an Iceberg table.
- *
- * @param dataset The Dataset<Row> to write to the Iceberg table.
- * @param table The name of the Iceberg table to write to.
- */
-fun writeTable(
-    dataset: Dataset<Row>,
-    table: String,
-): Unit = dataset.write().format("iceberg").mode("overwrite").saveAsTable(table)
+import org.apache.spark.sql.streaming.Trigger
+import java.util.concurrent.TimeUnit
 
 fun readKafkaStreamAvro(
     spark: SparkSession,
@@ -37,10 +19,49 @@ fun readKafkaStreamAvro(
     .option("kafka.bootstrap.servers", options.bootstrapServers)
     .option("subscribe", options.topic)
     .option("startingOffsets", "earliest")
+    .option("failOnDataLoss", "true")
     .load()
-    .let { df -> //TODO: Meh
-        val avroSchema = Files.readString(Paths.get(options.avroSchemaPath))
-        df.select(
-            from_avro(col("value"), avroSchema).alias("user"),
-        )
+    .select(from_avro(col("value"), spark.readFileAsString(options.inputSchema)).alias("data"))
+    .select("data.*")
+
+
+fun writeToIceberg(
+    dataset: Dataset<Row>,
+    options: Options
+) {
+    dataset.write()
+        .format("iceberg")
+        .mode("append")
+        .saveAsTable(options.table)
+
+}
+
+fun writeToConsole(
+    dataset: Dataset<Row>
+) {
+    dataset.write()
+        .format("console")
+        .mode("append")
+        .save()
+}
+
+
+fun SparkSession.readFileAsString(filePath: String): String =
+    FileSystem.get(sparkContext().hadoopConfiguration())
+        .open(Path(filePath))
+        .bufferedReader()
+        .use { it.readText() }
+
+
+fun renameColumnsFromAliases(df: Dataset<Row>, avroSchemaJson: String): Dataset<Row> {
+    val schema = Schema.Parser().parse(avroSchemaJson)
+    var renamedDf = df
+    for (field in schema.fields) {
+        for (alias in field.aliases()) {
+            if (df.columns().contains(alias)) {
+                renamedDf = renamedDf.withColumnRenamed(alias, field.name())
+            }
+        }
     }
+    return renamedDf
+}

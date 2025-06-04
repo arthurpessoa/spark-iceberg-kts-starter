@@ -8,23 +8,17 @@ fun pipeline(
     spark: SparkSession,
     options: Options,
 ) {
-    readKafkaStreamAvro(spark = spark, options).writeStream()
+    readKafkaStreamAvro(spark = spark, options)
+        .writeStream()
         // If any write fails, throw an exception. Spark will not commit the offsets for that batch, and will retry.
         .foreachBatch { batch: Dataset<Row>, _: Long ->
 
-            // TODO: Save into a file control table
-            batch.write()
-                .format("console")
-                .mode("append")
-                .save()
+            val renamedDataset = renameColumnsFromAliases(batch, spark.readFileAsString(options.outputSchema))
 
-            // TODO: Save into an Iceberg table
-            batch.write()
-                .format("console")
-                .mode("append")
-                .save()
+            //writeToConsole(renamedDataset)
+
+            writeToIceberg(renamedDataset, options)
         }
-        .option("checkpointLocation", "/tmp/checkpoint")
         .start()
         .awaitTermination()
 }

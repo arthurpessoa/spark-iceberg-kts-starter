@@ -1,20 +1,27 @@
 package com.example.demo
 
+
 data class Options(
-    val topic: String,
-    val bootstrapServers: String,
-    val avroSchemaPath: String,
+    var topic: String = "",
+    var table: String = "",
+    var bootstrapServers: String = "",
+    val inputSchema: String = "",
+    val outputSchema: String = "",
 )
 
-fun buildFromArgs(args: Array<String>): Options {
+fun buildOptionsFromArgs(args: Array<String>): Options {
     val topic = args.getParameter("--topic=")
+    val table = args.getParameter("--table=")
     val bootstrapServers = args.getParameter("--bootstrap-servers=")
-    val avroSchemaPath = args.getParameter("--avro-schema-path=")
+    val inputSchema = args.getParameter("--input-schema=")
+    val outputSchema = args.getParameter("--output-schema=")
 
     return Options(
         topic = topic,
+        table = table,
         bootstrapServers = bootstrapServers,
-        avroSchemaPath = avroSchemaPath,
+        inputSchema = inputSchema,
+        outputSchema = outputSchema,
     )
 }
 
