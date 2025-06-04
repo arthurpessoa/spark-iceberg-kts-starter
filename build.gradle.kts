@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.spark.core)
     implementation(libs.spark.sql)
+    implementation(libs.spark.avro)
     implementation(libs.spark.sql.kafka)
     implementation(libs.kafka.clients)
     implementation(libs.iceberg.spark.runtime)

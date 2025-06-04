@@ -14,6 +14,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform-launcher" }
 spark-core = { module = "org.apache.spark:spark-core_2.12", version.ref = "spark" }
+spark-avro = { module = "org.apache.spark:spark-avro_2.12", version.ref = "spark" }
 spark-sql = { module = "org.apache.spark:spark-sql_2.12", version.ref = "spark" }
 spark-sql-kafka = { module = "org.apache.spark:spark-sql-kafka-0-10_2.12", version.ref = "spark" }
 kafka-clients = { module = "org.apache.spark:spark-sql-kafka-0-10_2.12", version.ref = "kafka" }

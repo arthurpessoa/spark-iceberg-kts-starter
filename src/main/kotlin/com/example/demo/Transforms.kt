@@ -3,6 +3,10 @@ package com.example.demo
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.avro.functions.from_avro
+import org.apache.spark.sql.functions.col
+import java.nio.file.Files
+import java.nio.file.Paths
 
 /** * Reads a CSV file into a Spark Dataset.
  *
@@ -25,15 +29,16 @@ fun writeTable(
     table: String,
 ): Unit = dataset.write().format("iceberg").mode("overwrite").saveAsTable(table)
 
-fun readKafkaStream(
-    spark: SparkSession,
-    bootstrapServers: String,
-    topic: String,
-): Dataset<Row> {
-    return spark.readStream()
+fun readKafkaStreamAvro(spark: SparkSession, bootstrapServers: String, topic: String, avroSchemaPath: String) =
+    spark.readStream()
         .format("kafka")
         .option("kafka.bootstrap.servers", bootstrapServers)
         .option("subscribe", topic)
         .option("startingOffsets", "earliest")
         .load()
-}
+        .let { df ->
+            val avroSchema = Files.readString(Paths.get(avroSchemaPath))
+            df.select(
+                from_avro(col("value"), avroSchema).alias("user")
+            )
+        }
