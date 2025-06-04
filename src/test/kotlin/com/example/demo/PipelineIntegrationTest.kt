@@ -2,6 +2,7 @@ package com.example.demo
 
 import org.apache.spark.sql.SparkSession
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
@@ -30,7 +31,7 @@ class PipelineIntegrationTest {
         }
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     fun `pipeline runs end-to-end`() {
         // Prepare
         val testFile = "src/test/resources/sample.csv"
@@ -42,6 +43,6 @@ class PipelineIntegrationTest {
 
         // Assert
         val resultDf = spark.table(tableName)
-        assert(resultDf.count() > 0) { "Table should have data" }
+        assertTrue(resultDf.count() > 0, "Table should have data")
     }
 }
