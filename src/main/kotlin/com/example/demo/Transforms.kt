@@ -11,16 +11,19 @@ import org.apache.spark.sql.functions.col
 
 fun readKafkaStreamAvro(
     spark: SparkSession,
-    options: Options,
+    schema: String,
+    bootstrapServers: String,
+    topic: String,
 ): Dataset<Row> =
     spark.readStream()
         .format("kafka")
-        .option("kafka.bootstrap.servers", options.bootstrapServers)
-        .option("subscribe", options.topic)
+        .option("kafka.bootstrap.servers", bootstrapServers)
+        .option("subscribe", topic)
         .option("startingOffsets", "earliest")
         .option("failOnDataLoss", "true")
+        .option("writeAheadLog.enable", "true")
         .load()
-        .select(from_avro(col("value"), spark.readFileAsString(options.inputSchema)).alias("data"))
+        .select(from_avro(col("value"), schema).alias("data"))
         .select("data.*")
 
 fun writeToIceberg(
