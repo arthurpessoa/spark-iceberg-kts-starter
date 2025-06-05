@@ -80,7 +80,7 @@ class PipelineIntegrationTest {
         kafkaSend(avroSchema, map, topic, EmbeddedKafkaConfig.defaultKafkaPort())
 
         executor.submit {
-            pipeline(spark, options)
+            kafkaToIcebergPipeline(spark, options)
         }
 
         await.atMost(10, TimeUnit.HOURS).until {

@@ -9,6 +9,15 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.avro.functions.from_avro
 import org.apache.spark.sql.functions.col
 
+/**
+ * Reads a Kafka stream with Avro data and returns a Dataset<Row> with the data parsed according to the provided schema.
+ *
+ * @param spark The Spark session.
+ * @param schema The Avro schema as a string.
+ * @param bootstrapServers The Kafka bootstrap servers.
+ * @param topic The Kafka topic to subscribe to.
+ * @return A Dataset<Row> containing the parsed data from the Kafka stream.
+ */
 fun readKafkaStreamAvro(
     spark: SparkSession,
     schema: String,
@@ -26,16 +35,26 @@ fun readKafkaStreamAvro(
         .select(from_avro(col("value"), schema).alias("data"))
         .select("data.*")
 
+/** * Writes the dataset to an Iceberg table in append mode.
+ *
+ * @param dataset The dataset to write to the Iceberg table.
+ * @param tableName The name of the Iceberg table.
+ */
 fun writeToIceberg(
     dataset: Dataset<Row>,
-    options: Options,
+    tableName: String,
 ) {
     dataset.write()
         .format("iceberg")
         .mode("append")
-        .saveAsTable(options.table)
+        .saveAsTable(tableName)
 }
 
+/**
+ * Writes the dataset to the console in append mode.
+ *
+ * @param dataset The dataset to write to the console.
+ */
 fun writeToConsole(dataset: Dataset<Row>) {
     dataset.write()
         .format("console")
@@ -43,12 +62,13 @@ fun writeToConsole(dataset: Dataset<Row>) {
         .save()
 }
 
-fun SparkSession.readFileAsString(filePath: String): String =
-    FileSystem.get(sparkContext().hadoopConfiguration())
-        .open(Path(filePath))
-        .bufferedReader()
-        .use { it.readText() }
-
+/**
+ * Renames columns in the DataFrame based on the aliases defined in the provided Avro schema.
+ *
+ * @param df The DataFrame to rename columns in.
+ * @param avroSchemaJson The Avro schema as a JSON string.
+ * @return A new DataFrame with columns renamed according to the Avro schema aliases.
+ */
 fun renameColumnsFromAliases(
     df: Dataset<Row>,
     avroSchemaJson: String,
@@ -64,3 +84,15 @@ fun renameColumnsFromAliases(
     }
     return renamedDf
 }
+
+/**
+ * Reads a file from the given file path and returns its content as a string.
+ *
+ * @param filePath The path to the file to read.
+ * @return The content of the file as a string.
+ */
+fun SparkSession.readFileAsString(filePath: String): String =
+    FileSystem.get(sparkContext().hadoopConfiguration())
+        .open(Path(filePath))
+        .bufferedReader()
+        .use { it.readText() }

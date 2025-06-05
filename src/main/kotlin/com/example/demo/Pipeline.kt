@@ -4,7 +4,12 @@ import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.SparkSession
 
-fun pipeline(
+/** Pipeline function that reads from Kafka, processes the data, and writes to Iceberg.
+ *
+ * @param spark The Spark session.
+ * @param options The options containing configuration parameters for the pipeline.
+ */
+fun kafkaToIcebergPipeline(
     spark: SparkSession,
     options: Options,
 ) {
@@ -22,7 +27,7 @@ fun pipeline(
             val renamedDataset = renameColumnsFromAliases(batch, outputSchema)
 
             writeToConsole(renamedDataset)
-            writeToIceberg(renamedDataset, options)
+            writeToIceberg(renamedDataset, options.table)
         }
         .start()
         .awaitTermination()
