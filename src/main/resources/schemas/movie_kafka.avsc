@@ -1,0 +1,28 @@
+{
+    "type": "record",
+    "name": "MovieKafkaRecord",
+    "namespace": "com.example.demo",
+    "fields": [
+        {
+            "name": "id",
+            "type": "string",
+            "aliases": [
+                "idt_movie"
+            ]
+        },
+        {
+            "name": "title",
+            "type": "string",
+            "aliases": [
+                "des_title"
+            ]
+        },
+        {
+            "name": "rating",
+            "type": "int",
+            "aliases": [
+                "num_rating"
+            ]
+        }
+    ]
+}
